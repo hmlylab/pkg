@@ -8,10 +8,15 @@ import (
 
 func ConnectDB(dsn string) *gorm.DB {
 	logger := logger.NewLogger()
-	DB, err := gorm.Open(postgres.Open(dsn))
+	db, err := gorm.Open(postgres.Open(dsn))
 	if err != nil {
 		logger.Error("failed to connect to database")
 	}
 	logger.Info("database connection opened")
-	return DB
+
+	defer func() {
+		dbInstance, _ := db.DB()
+		_ = dbInstance.Close()
+	}()
+	return db
 }

@@ -1,0 +1,33 @@
+name: hmlylab packages
+run-name: ${{ github.event.head_commit.message }}
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/pkg.yaml'
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - name: Set up go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.24'
+  
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build logger package
+        run: go build -v ./...
+        
+      - name: Test Package
+        run: go test -v ./...
+
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref_type == 'tag'

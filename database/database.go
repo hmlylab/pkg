@@ -4,11 +4,20 @@ import (
 	"github.com/hmlylab/pkg/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	gormLogger "gorm.io/gorm/logger"
 )
 
-func ConnectDB(dsn string) *gorm.DB {
+type DbOptions struct {
+	DSN          string
+	PreparedStmt bool
+}
+
+func ConnectDB(options DbOptions) *gorm.DB {
 	logger := logger.NewLogger()
-	DB, err := gorm.Open(postgres.Open(dsn))
+	DB, err := gorm.Open(postgres.Open(options.DSN), &gorm.Config{
+		Logger:      gormLogger.Default.LogMode(gormLogger.Info),
+		PrepareStmt: options.PreparedStmt,
+	})
 	if err != nil {
 		logger.Error("failed to connect to database")
 	}
